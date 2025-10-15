@@ -64,7 +64,7 @@
         <div class="section-head">
           <h2>mazo de problemas</h2>
           <div class="controls">
-            <button id="btnSimular" class="btn btn-accent" type="button">simular robo 4s</button>
+            <button id="btnElegir" class="btn btn-accent" type="button">elegir problema</button>
             <button id="btnReiniciarProb" class="btn" type="button">reiniciar mazo</button>
           </div>
         </div>
@@ -73,6 +73,8 @@
           <div class="pile pile-left" aria-label="mazo restante">
             <h3>mazo</h3>
             <div id="prob-deck" class="stack"></div>
+            <!-- contenedor para la carta elegida que debe aparecer a la izquierda -->
+            <div id="prob-chosen" class="chosen" aria-live="polite"></div>
           </div>
           <div class="pile pile-right" aria-label="cartas robadas">
             <h3>robadas</h3>

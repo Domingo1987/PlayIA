@@ -68,6 +68,17 @@ img{max-width:100%;display:block}
 .drawn{display:flex;flex-wrap:wrap;gap:10px;min-height:calc(var(--card-h) + 20px)}
 .current{margin-top:10px}
 
+/* Estilos para cartas apiladas (una encima de otra) */
+.drawn.stack-vertical{display:block;position:relative;width:120px;min-height:140px}
+.drawn.stack-vertical .card{position:absolute;left:0;top:0;width:100%;height:auto;transform:none;border-radius:10px}
+.drawn .card{transition:transform .28s ease, top .28s ease, left .28s ease, opacity .2s}
+.moving-card{position:absolute;z-index:40;pointer-events:none;will-change:transform,top,left}
+
+/* contenedor para la carta elegida (izquierda) */
+.chosen{margin-top:12px;min-height:calc(var(--card-h) / 2);}
+.chosen .card{width:var(--card-w);height:var(--card-h);max-width:220px}
+.chosen .card img{object-fit:cover}
+
 /* carta base reutilizable */
 .card{width:var(--card-w);height:var(--card-h);border-radius:16px;overflow:hidden;border:1px solid #1f2c4f;background:#0e1a33;box-shadow:var(--shadow)}
 .card img{width:100%;height:100%;object-fit:cover;display:block}

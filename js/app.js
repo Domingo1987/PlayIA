@@ -94,12 +94,15 @@ const probState = { deck: [], drawn: [], busy: false };
 
 function buildProbDeck(){
   // baraja simple
-  probState.deck = PROB_FILES.map(name => ({ name, path:`./assets/mazo-prob/${name}` }));
-  // mezclar
-  for(let i=probState.deck.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [probState.deck[i], probState.deck[j]] = [probState.deck[j], probState.deck[i]];
-  }
+  // NOTE: removed randomness for now — always use fondo-prob01.png
+  // probState.deck = PROB_FILES.map(name => ({ name, path:`./assets/mazo-prob/${name}` }));
+  // // mezclar
+  // for(let i=probState.deck.length-1;i>0;i--){
+  //   const j = Math.floor(Math.random()*(i+1));
+  //   [probState.deck[i], probState.deck[j]] = [probState.deck[j], probState.deck[i]];
+  // }
+  // For testing/demo: create a deck where every card is the same fixed image
+  probState.deck = Array.from({length:20}, (_,i)=>({ name: 'fondo-prob01.png', path: `./assets/mazo-prob/fondo-prob01.png` }));
   probState.drawn = [];
   renderProb();
 }
@@ -108,6 +111,7 @@ function renderProb(){
   const deckEl = $('#prob-deck');
   const drawnEl = $('#prob-drawn');
   const currentEl = $('#prob-current');
+  const chosenEl = $('#prob-chosen');
 
   deckEl.innerHTML = '';
   const layers = Math.min(probState.deck.length, 12);
@@ -126,10 +130,19 @@ function renderProb(){
     deckEl.appendChild(card);
   }
 
+  // mostrar cartas robadas como una pila apilada
   drawnEl.innerHTML = '';
-  probState.drawn.slice(-10).forEach(c => {
+  drawnEl.classList.add('stack-vertical');
+  const recent = probState.drawn.slice(-10);
+  recent.forEach((c, idx) => {
     const d = document.createElement('div');
     d.className = 'card card--mini';
+    // posicionar absolutamente dentro de la pila
+    d.style.position = 'absolute';
+    d.style.left = '0';
+    const offset = idx * 8; // separación entre cartas
+    d.style.top = `${offset}px`;
+    d.style.zIndex = `${100 + idx}`;
     const img = document.createElement('img');
     img.alt = c.name;
     img.src = c.path;
@@ -152,32 +165,90 @@ function renderProb(){
   }
 }
 
-async function simularRobo4s(){
+// elegir un problema: animar una carta desde la pila al área de robadas y apilarla
+async function elegirProblema(){
   if(probState.busy || probState.deck.length === 0) return;
   probState.busy = true;
-  const tTotal = 4000; // 4s
-  const steps = 12;    // pasos de animación
-  const delay = Math.floor(tTotal / steps);
 
-  // pre-animación: "hojear" cartas
-  for(let k=0;k<steps-1;k++){
-    // pequeña animación visual: reordenar sutilmente la pila
-    const deckEl = $('#prob-deck');
-    deckEl.style.transition = 'transform .12s';
-    deckEl.style.transform = `translateY(${(k%2? -4:4)}px)`;
-    await new Promise(r=>setTimeout(r, Math.max(60, delay-60)));
-    deckEl.style.transform = 'translateY(0)';
-  }
+  const deckEl = $('#prob-deck');
+  const drawnEl = $('#prob-drawn');
+  const currentEl = $('#prob-current');
 
-  // robo final
+  // tomar la carta del deck
   const card = probState.deck.pop();
-  if(card){ probState.drawn.push(card); }
+  if(!card){ probState.busy = false; return; }
+
+  // crear elemento visual que se moverá
+  const moving = document.createElement('div');
+  moving.className = 'card moving-card';
+  moving.style.width = '80px';
+  moving.style.height = '120px';
+  moving.style.overflow = 'hidden';
+  const img = document.createElement('img');
+  img.alt = card.name;
+  img.src = card.path;
+  img.onerror = ()=> img.src = dataImg('', 'carta');
+  moving.appendChild(img);
+  document.body.appendChild(moving);
+
+  // calcular posición inicial (centro de la pila)
+  const deckRect = deckEl.getBoundingClientRect();
+  moving.style.left = `${deckRect.left + deckRect.width/2 - 40}px`;
+  moving.style.top = `${deckRect.top + 10}px`;
+
+  // forzar layout antes de animar
+  void moving.offsetWidth;
+
+  // destino: area chosen (izquierda) para mostrar la carta seleccionada
+  const chosenRect = chosenEl.getBoundingClientRect();
+  // centrar la carta moviente dentro del contenedor chosen
+  const mW = 80, mH = 120; // tamaño del elemento moving
+  const destLeft = chosenRect.left + (chosenRect.width / 2 - mW / 2);
+  const destTop = chosenRect.top + (chosenRect.height / 2 - mH / 2);
+
+  moving.style.transition = 'transform .45s cubic-bezier(.2,.9,.2,1), top .45s, left .45s, opacity .25s';
+  moving.style.transform = `translate(${destLeft - (deckRect.left + deckRect.width/2 - 40)}px, ${destTop - (deckRect.top + 10)}px) scale(1)`;
+
+  // esperar la animación
+  await new Promise(r=> setTimeout(r, 480));
+
+  // agregar a estado (historial) y renderizar apilado
+  probState.drawn.push(card);
   renderProb();
+
+  // colocar la carta seleccionada en el contenedor elegido (izquierda)
+  chosenEl.innerHTML = '';
+  const chosenBig = document.createElement('div');
+  chosenBig.className = 'card';
+  const cbimg = document.createElement('img');
+  cbimg.alt = card.name;
+  cbimg.src = card.path;
+  cbimg.onerror = ()=> cbimg.src = dataImg('', 'seleccionada');
+  chosenBig.appendChild(cbimg);
+  chosenEl.appendChild(chosenBig);
+
+  // limpiar elemento moviente
+  moving.remove();
+
+  // actualizar current (muestra la misma carta arriba derecha también)
+  if(probState.drawn.length){
+    const top = probState.drawn[probState.drawn.length-1];
+    currentEl.innerHTML = '';
+    const big = document.createElement('div');
+    big.className = 'card';
+    const bimg = document.createElement('img');
+    bimg.alt = top.name;
+    bimg.src = top.path;
+    bimg.onerror = ()=> bimg.src = dataImg('', 'seleccionada');
+    big.appendChild(bimg);
+    currentEl.appendChild(big);
+  }
 
   probState.busy = false;
 }
 
-$('#btnSimular').addEventListener('click', simularRobo4s);
+// conectar nuevo botón
+$('#btnElegir').addEventListener('click', elegirProblema);
 $('#btnReiniciarProb').addEventListener('click', buildProbDeck);
 
 buildProbDeck();
