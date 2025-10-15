@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PlayIA — Mazos interactivos</title>
+  <link rel="icon" href="./assets/public/favicon.ico" />
+  <link rel="preload" as="image" href="./assets/public/banner.jpg" />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <!-- header fijo -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#inicio">
+        <img src="./assets/public/logo.png" alt="PlayIA" class="brand-logo" />
+      </a>
+      <nav aria-label="Principal" class="main-nav">
+        <a href="#que-es">¿qué es?</a>
+        <a href="#mazo-ia">mazo de ia</a>
+        <a href="#mazo-prob">mazo de problemas</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inicio">
+    <!-- banner -->
+    <section class="hero" role="img" aria-label="banner">
+      <!-- reemplaza banner.jpg por la imagen que nos pasaste -->
+      <div class="hero-overlay">
+        <h1>explora playia</h1>
+        <p>mazos de inteligencia artificial y de problemas para aprender jugando</p>
+      </div>
+    </section>
+
+    <!-- qué es playia -->
+    <section id="que-es" class="section">
+      <div class="container">
+        <h2>¿qué es playia?</h2>
+        <p>
+          playia es una propuesta lúdica-educativa que usa mazos temáticos para activar
+          la curiosidad, el análisis y la conversación. cada carta es una puerta a
+          conceptos, tareas o desafíos.
+        </p>
+        <div id="infinite-stream" class="infinite-stream" aria-live="polite"></div>
+        <div id="stream-sentinel" class="stream-sentinel" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- mazo de ia: 10 cartas que se dan vuelta al hover -->
+    <section id="mazo-ia" class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>mazo de ia</h2>
+          <p>pasa el cursor por encima para ver el reverso y la descripción.</p>
+        </div>
+        <div class="grid-ia" id="ia-grid" aria-label="mazo de ia" role="list"></div>
+      </div>
+    </section>
+
+    <!-- mazo de problemas: simulación de robar cartas en 4s -->
+    <section id="mazo-prob" class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>mazo de problemas</h2>
+          <div class="controls">
+            <button id="btnSimular" class="btn btn-accent" type="button">simular robo 4s</button>
+            <button id="btnReiniciarProb" class="btn" type="button">reiniciar mazo</button>
+          </div>
+        </div>
+
+        <div class="prob-board">
+          <div class="pile pile-left" aria-label="mazo restante">
+            <h3>mazo</h3>
+            <div id="prob-deck" class="stack"></div>
+          </div>
+          <div class="pile pile-right" aria-label="cartas robadas">
+            <h3>robadas</h3>
+            <div id="prob-drawn" class="drawn"></div>
+            <div id="prob-current" class="current" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>© <span id="y"></span> playia</small>
+    </div>
+  </footer>
+
+  <script src="./js/app.js"></script>
+</body>
+</html>

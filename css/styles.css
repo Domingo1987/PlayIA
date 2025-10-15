@@ -1,0 +1,76 @@
+:root{
+  --bg:#0b132b; --panel:#1c2541; --accent:#5bc0be; --accent-2:#6fffe9; --text:#e6edf3; --muted:#9aa4b2;
+  --card-w: 220px; --card-h: 320px; --radius:16px; --gap:14px; --shadow:0 10px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,Cantarell,Arial; color:var(--text); background:radial-gradient(1100px 70% at 50% 0%, #15203b 0%, var(--bg) 45%) fixed;}
+img{max-width:100%;display:block}
+.container{max-width:1100px;margin:0 auto;padding:0 16px}
+
+/* header fijo */
+.site-header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg, rgba(11,19,43,.95), rgba(11,19,43,.8)); border-bottom:1px solid #223055; backdrop-filter:blur(6px)}
+.header-inner{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:10px 0}
+.brand{display:flex;gap:10px;align-items:center;text-decoration:none;color:var(--text)}
+.brand-logo{width:100px;height:100px;object-fit:contain}
+.brand-text{font-weight:700}
+
+/* Ajuste responsivo para el logo en pantallas pequeñas */
+@media (max-width:480px){
+  .brand-logo{width:32px;height:32px}
+}
+.main-nav{display:flex;gap:16px}
+.main-nav a{color:var(--text);text-decoration:none;padding:8px 10px;border-radius:10px;border:1px solid transparent}
+.main-nav a:hover{border-color:#2a355a; background:#0f1a36}
+
+/* hero */
+.hero{position:relative;min-height:46vh;display:grid;place-items:center;border-bottom:1px solid #223055}
+.hero-img{width:100%;height:46vh;object-fit:cover;filter:saturate(1.05) contrast(1.05)}
+.hero-overlay{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:24px;background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,.45))}
+.hero-overlay h1{margin:0 0 8px 0;font-size:clamp(28px,5vw,42px)}
+.hero-overlay p{margin:0;color:var(--muted)}
+
+/* secciones */
+.section{padding:40px 0}
+.section-head{display:flex;gap:16px;align-items:end;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap}
+.section h2{margin:0 0 10px 0;font-size:24px}
+
+/* botones */
+.btn{appearance:none;cursor:pointer;border:1px solid #2a355a;background:#0f1a36;color:var(--text);padding:10px 14px;border-radius:12px;box-shadow:var(--shadow) inset 0 0 0 transparent;transition:transform .15s ease, background-color .15s ease, border-color .15s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-accent{background:linear-gradient(180deg,#1aa3a0,#178f8c);border-color:#147f7c}
+
+/* infinite stream */
+.infinite-stream{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--gap)}
+.card-note{background:var(--panel);border:1px solid #293457;border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.card-note h3{margin:0 0 6px 0;font-size:16px}
+.card-note p{margin:0;color:var(--muted)}
+.stream-sentinel{height:1px}
+
+/* grid mazo IA */
+.grid-ia{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--gap)}
+.flip{width:var(--card-w);height:var(--card-h);perspective:1000px;margin:auto}
+.flip-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .6s}
+.flip:hover .flip-inner{transform:rotateY(180deg)}
+.flip-face{position:absolute;inset:0;border-radius:var(--radius);overflow:hidden;border:1px solid #1f2c4f;background:#0e1a33;box-shadow:var(--shadow);backface-visibility:hidden}
+.flip-face.back{transform:rotateY(180deg);display:grid;grid-template-rows:auto 1fr;align-items:start}
+.flip-face img{width:100%;height:100%;object-fit:cover}
+.flip-meta{padding:10px}
+.flip-meta h3{margin:0 0 6px 0;font-size:16px}
+.flip-meta p{margin:0;color:var(--muted);font-size:14px}
+
+/* mazo problemas */
+.prob-board{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media (max-width:900px){.prob-board{grid-template-columns:1fr}}
+.pile h3{margin:0 0 8px 0;color:var(--muted)}
+.stack{position:relative;min-height:calc(var(--card-h) + 20px)}
+.stack .card{position:absolute;left:0;top:0;transform:translate(var(--tx,0), var(--ty,0)) rotate(var(--rot,0));}
+.drawn{display:flex;flex-wrap:wrap;gap:10px;min-height:calc(var(--card-h) + 20px)}
+.current{margin-top:10px}
+
+/* carta base reutilizable */
+.card{width:var(--card-w);height:var(--card-h);border-radius:16px;overflow:hidden;border:1px solid #1f2c4f;background:#0e1a33;box-shadow:var(--shadow)}
+.card img{width:100%;height:100%;object-fit:cover;display:block}
+.card--mini{width:80px;height:120px;border-radius:10px}
+
+.site-footer{border-top:1px solid #223055;color:var(--muted);padding:18px 0;text-align:center}
