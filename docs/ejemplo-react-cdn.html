@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ejemplo React con CDN</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    /* Estilos Tailwind simulados */
+    .min-h-screen { min-height: 100vh; }
+    .bg-gradient-to-br { background: linear-gradient(to bottom right, #166534, #14532d); }
+    /* ... etc */
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <!-- El código JSX debe estar en un script con type="text/babel" -->
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    
+    const CardDeckSimulation = () => {
+      const [cards, setCards] = useState([]);
+      const [drawnCards, setDrawnCards] = useState([]);
+      const [currentCard, setCurrentCard] = useState(null);
+      const [isAnimating, setIsAnimating] = useState(false);
+      const [selectedCard, setSelectedCard] = useState(null);
+
+      useEffect(() => {
+        initializeDeck();
+      }, []);
+
+      const initializeDeck = () => {
+        const newDeck = Array.from({ length: 50 }, (_, i) => ({
+          id: i + 1,
+          number: i + 1
+        }));
+        setCards(newDeck);
+        setDrawnCards([]);
+        setCurrentCard(null);
+        setSelectedCard(null);
+      };
+
+      const startSimulation = async () => {
+        if (isAnimating) return;
+        
+        setIsAnimating(true);
+        setDrawnCards([]);
+        setSelectedCard(null);
+        
+        const deckCopy = [...cards];
+        const drawn = [];
+
+        for (let i = 0; i < 10; i++) {
+          if (deckCopy.length === 0) break;
+          
+          const card = deckCopy.shift();
+          setCurrentCard(card);
+          
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          drawn.push(card);
+          setDrawnCards([...drawn]);
+          setCurrentCard(null);
+          
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        
+        if (drawn.length > 0) {
+          setSelectedCard(drawn[drawn.length - 1]);
+        }
+        
+        setCards(deckCopy);
+        setIsAnimating(false);
+      };
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br p-8">
+          <h1 className="text-4xl font-bold text-white text-center mb-8">
+            Simulación de Mazo de Cartas
+          </h1>
+          
+          <div className="flex justify-center gap-4 mb-8">
+            <button onClick={startSimulation} disabled={isAnimating}>
+              {isAnimating ? 'Animando...' : 'Iniciar Simulación'}
+            </button>
+            
+            <button onClick={initializeDeck} disabled={isAnimating}>
+              Reiniciar
+            </button>
+          </div>
+
+          <div className="flex justify-center items-start gap-16">
+            <div className="flex flex-col items-center">
+              <h2>Mazo ({cards.length} cartas)</h2>
+            </div>
+
+            {currentCard && (
+              <div className="flex flex-col items-center">
+                <h2>Sacando carta...</h2>
+                <div>
+                  <span>{currentCard.number}</span>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col items-center">
+              <h2>Cartas Sacadas ({drawnCards.length}/10)</h2>
+            </div>
+          </div>
+
+          {selectedCard && (
+            <div className="mt-12 text-center">
+              <p>¡Carta Elegida: {selectedCard.number}!</p>
+            </div>
+          )}
+        </div>
+      );
+    };
+    
+    // Renderizar el componente
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<CardDeckSimulation />);
+  </script>
+</body>
+</html>

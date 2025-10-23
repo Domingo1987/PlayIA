@@ -2,9 +2,6 @@
 const $ = (s, el=document) => el.querySelector(s);
 const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
 
-/* año footer */
-$('#y').textContent = new Date().getFullYear();
-
 /* -------- scroll infinito (sección ¿qué es?) -------- */
 const stream = $('#infinite-stream');
 const sentinel = $('#stream-sentinel');
@@ -86,24 +83,61 @@ function buildIaGrid(){
 
 buildIaGrid();
 
-/* -------- mazo de problemas (simulación 4s) -------- */
-const PROB_FILES = Array.from({length: 20}, (_,i)=>`fondo-${String(i+1).padStart(2,'0')}.png`);
+/* -------- mazo de problemas (simulación estilo card-deck-simulation) -------- */
 const PROB_BACK = 'tapa-prob.png';
 
-const probState = { deck: [], drawn: [], busy: false };
+// Variable global para los problemas (se cargará del JSON)
+let problemas = [];
+
+const probState = { 
+  problemas_mazo: [],  // Mazo mezclado
+  drawn: [],           // Cartas extraídas
+  busy: false,
+  currentCard: null,
+  selectedCard: null,
+  carta_azar: null     // Posición aleatoria de la carta seleccionada
+};
+
+// Cargar problemas desde el JSON
+async function cargarProblemas() {
+  try {
+    const response = await fetch('./assets/data/problemas.json');
+    const data = await response.json();
+    problemas = data.problemas;
+    buildProbDeck();
+  } catch (error) {
+    console.error('Error al cargar problemas:', error);
+    // Fallback: usar problemas genéricos si falla la carga
+    problemas = Array.from({length: 50}, (_, i) => `Problema ${i + 1}`);
+    buildProbDeck();
+  }
+}
 
 function buildProbDeck(){
-  // baraja simple
-  // NOTE: removed randomness for now — always use fondo-prob01.png
-  // probState.deck = PROB_FILES.map(name => ({ name, path:`./assets/mazo-prob/${name}` }));
-  // // mezclar
-  // for(let i=probState.deck.length-1;i>0;i--){
-  //   const j = Math.floor(Math.random()*(i+1));
-  //   [probState.deck[i], probState.deck[j]] = [probState.deck[j], probState.deck[i]];
-  // }
-  // For testing/demo: create a deck where every card is the same fixed image
-  probState.deck = Array.from({length:20}, (_,i)=>({ name: 'fondo-prob01.png', path: `./assets/mazo-prob/fondo-prob01.png` }));
+  // Verificar que los problemas estén cargados
+  if(problemas.length === 0) return;
+  
+  // Crear problemas_mazo como shuffle de problemas
+  probState.problemas_mazo = problemas.map((texto, idx) => ({
+    id: idx + 1,
+    texto: texto,
+    // Usar frente-prob.png como imagen única para todas las cartas
+    path: `./assets/mazo-prob/frente-prob.png`
+  }));
+  
+  // Mezclar el mazo (Fisher-Yates shuffle)
+  for(let i = probState.problemas_mazo.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [probState.problemas_mazo[i], probState.problemas_mazo[j]] = 
+    [probState.problemas_mazo[j], probState.problemas_mazo[i]];
+  }
+  
+  // Generar carta_azar: número aleatorio entre 10 y 25
+  probState.carta_azar = Math.floor(Math.random() * (25 - 10 + 1)) + 10;
+  
   probState.drawn = [];
+  probState.currentCard = null;
+  probState.selectedCard = null;
   renderProb();
 }
 
@@ -113,10 +147,16 @@ function renderProb(){
   const currentEl = $('#prob-current');
   const chosenEl = $('#prob-chosen');
 
+  // Actualizar contadores
+  const deckCount = $('#deck-count');
+  const drawnCount = $('#drawn-count');
+  if(deckCount) deckCount.textContent = probState.problemas_mazo.length;
+  if(drawnCount) drawnCount.textContent = probState.drawn.length;
+
+  // Renderizar mazo principal (cartas restantes - reverso)
   deckEl.innerHTML = '';
-  const layers = Math.min(probState.deck.length, 12);
+  const layers = Math.min(probState.problemas_mazo.length, 12);
   for(let i=0;i<layers;i++){
-    const z = i; // profundidad
     const card = document.createElement('div');
     card.className = 'card card--mini';
     card.style.setProperty('--tx', `${i*1.2}px`);
@@ -130,125 +170,137 @@ function renderProb(){
     deckEl.appendChild(card);
   }
 
-  // mostrar cartas robadas como una pila apilada
+  // Mostrar carta actual siendo extraída (en el centro)
+  currentEl.innerHTML = '';
+  if(probState.currentCard){
+    const animCard = document.createElement('div');
+    animCard.className = 'card card--flip';
+    const img = document.createElement('img');
+    img.alt = probState.currentCard.texto;
+    img.src = probState.currentCard.path;
+    img.onerror = ()=> img.src = './assets/mazo-prob/frente-prob.png';
+    animCard.appendChild(img);
+    
+    // Agregar texto del problema sobre la carta
+    const textOverlay = document.createElement('div');
+    textOverlay.className = 'card-text-overlay';
+    textOverlay.textContent = probState.currentCard.texto;
+    animCard.appendChild(textOverlay);
+    
+    currentEl.appendChild(animCard);
+  }
+
+  // Mostrar cartas extraídas apiladas a la IZQUIERDA (frente visible)
   drawnEl.innerHTML = '';
   drawnEl.classList.add('stack-vertical');
-  const recent = probState.drawn.slice(-10);
-  recent.forEach((c, idx) => {
+  probState.drawn.forEach((c, idx) => {
     const d = document.createElement('div');
     d.className = 'card card--mini';
-    // posicionar absolutamente dentro de la pila
     d.style.position = 'absolute';
     d.style.left = '0';
-    const offset = idx * 8; // separación entre cartas
+    const offset = idx * 8;
     d.style.top = `${offset}px`;
     d.style.zIndex = `${100 + idx}`;
+    
+    // Resaltar la carta seleccionada (debe estar encima)
+    if(probState.selectedCard && c.id === probState.selectedCard.id){
+      d.classList.add('card-selected');
+      d.style.zIndex = '1000'; // Asegurar que esté encima
+    }
+    
     const img = document.createElement('img');
-    img.alt = c.name;
+    img.alt = c.texto;
     img.src = c.path;
-    img.onerror = ()=> img.src = dataImg('', 'carta');
+    img.onerror = ()=> img.src = './assets/mazo-prob/frente-prob.png';
     d.appendChild(img);
+    
+    // Agregar texto del problema
+    const textOverlay = document.createElement('div');
+    textOverlay.className = 'card-text-overlay-mini';
+    textOverlay.textContent = c.texto;
+    d.appendChild(textOverlay);
+    
     drawnEl.appendChild(d);
   });
 
-  currentEl.innerHTML = '';
-  if(probState.drawn.length){
-    const top = probState.drawn[probState.drawn.length-1];
-    const big = document.createElement('div');
-    big.className = 'card';
-    const img = document.createElement('img');
-    img.alt = top.name;
-    img.src = top.path;
-    img.onerror = ()=> img.src = dataImg('', 'seleccionada');
-    big.appendChild(img);
-    currentEl.appendChild(big);
-  }
-}
-
-// elegir un problema: animar una carta desde la pila al área de robadas y apilarla
-async function elegirProblema(){
-  if(probState.busy || probState.deck.length === 0) return;
-  probState.busy = true;
-
-  const deckEl = $('#prob-deck');
-  const drawnEl = $('#prob-drawn');
-  const currentEl = $('#prob-current');
-
-  // tomar la carta del deck
-  const card = probState.deck.pop();
-  if(!card){ probState.busy = false; return; }
-
-  // crear elemento visual que se moverá
-  const moving = document.createElement('div');
-  moving.className = 'card moving-card';
-  moving.style.width = '80px';
-  moving.style.height = '120px';
-  moving.style.overflow = 'hidden';
-  const img = document.createElement('img');
-  img.alt = card.name;
-  img.src = card.path;
-  img.onerror = ()=> img.src = dataImg('', 'carta');
-  moving.appendChild(img);
-  document.body.appendChild(moving);
-
-  // calcular posición inicial (centro de la pila)
-  const deckRect = deckEl.getBoundingClientRect();
-  moving.style.left = `${deckRect.left + deckRect.width/2 - 40}px`;
-  moving.style.top = `${deckRect.top + 10}px`;
-
-  // forzar layout antes de animar
-  void moving.offsetWidth;
-
-  // destino: area chosen (izquierda) para mostrar la carta seleccionada
-  const chosenRect = chosenEl.getBoundingClientRect();
-  // centrar la carta moviente dentro del contenedor chosen
-  const mW = 80, mH = 120; // tamaño del elemento moving
-  const destLeft = chosenRect.left + (chosenRect.width / 2 - mW / 2);
-  const destTop = chosenRect.top + (chosenRect.height / 2 - mH / 2);
-
-  moving.style.transition = 'transform .45s cubic-bezier(.2,.9,.2,1), top .45s, left .45s, opacity .25s';
-  moving.style.transform = `translate(${destLeft - (deckRect.left + deckRect.width/2 - 40)}px, ${destTop - (deckRect.top + 10)}px) scale(1)`;
-
-  // esperar la animación
-  await new Promise(r=> setTimeout(r, 480));
-
-  // agregar a estado (historial) y renderizar apilado
-  probState.drawn.push(card);
-  renderProb();
-
-  // colocar la carta seleccionada en el contenedor elegido (izquierda)
+  // Mostrar carta elegida grande en el contenedor izquierdo (chosen)
   chosenEl.innerHTML = '';
-  const chosenBig = document.createElement('div');
-  chosenBig.className = 'card';
-  const cbimg = document.createElement('img');
-  cbimg.alt = card.name;
-  cbimg.src = card.path;
-  cbimg.onerror = ()=> cbimg.src = dataImg('', 'seleccionada');
-  chosenBig.appendChild(cbimg);
-  chosenEl.appendChild(chosenBig);
-
-  // limpiar elemento moviente
-  moving.remove();
-
-  // actualizar current (muestra la misma carta arriba derecha también)
-  if(probState.drawn.length){
-    const top = probState.drawn[probState.drawn.length-1];
-    currentEl.innerHTML = '';
-    const big = document.createElement('div');
-    big.className = 'card';
-    const bimg = document.createElement('img');
-    bimg.alt = top.name;
-    bimg.src = top.path;
-    bimg.onerror = ()=> bimg.src = dataImg('', 'seleccionada');
-    big.appendChild(bimg);
-    currentEl.appendChild(big);
+  if(probState.selectedCard){
+    const chosenBig = document.createElement('div');
+    chosenBig.className = 'card card-chosen';
+    const cbimg = document.createElement('img');
+    cbimg.alt = probState.selectedCard.texto;
+    cbimg.src = probState.selectedCard.path;
+    cbimg.onerror = ()=> cbimg.src = './assets/mazo-prob/frente-prob.png';
+    chosenBig.appendChild(cbimg);
+    
+    // Agregar texto del problema
+    const textOverlay = document.createElement('div');
+    textOverlay.className = 'card-text-overlay';
+    textOverlay.textContent = probState.selectedCard.texto;
+    chosenBig.appendChild(textOverlay);
+    
+    chosenEl.appendChild(chosenBig);
   }
-
-  probState.busy = false;
 }
 
-// conectar nuevo botón
+// Elegir un problema: simulación estilo card-deck-simulation
+// Extrae cartas hasta carta_azar, una por una cada 100ms
+async function elegirProblema(){
+  if(probState.busy) return;
+  if(probState.problemas_mazo.length === 0){
+    alert('El mazo está vacío. Reinicia para continuar.');
+    return;
+  }
+  
+  probState.busy = true;
+  probState.drawn = [];
+  probState.selectedCard = null;
+  
+  // Número de cartas a extraer (hasta carta_azar)
+  const numCartasExtraer = Math.min(probState.carta_azar, probState.problemas_mazo.length);
+  
+  // Actualizar el botón para mostrar que está en proceso
+  const btnElegir = $('#btnElegir');
+  const originalText = btnElegir.textContent;
+  btnElegir.disabled = true;
+  
+  for(let i = 0; i < numCartasExtraer; i++){
+    if(probState.problemas_mazo.length === 0) break;
+    
+    // Sacar carta del mazo (del inicio)
+    const card = probState.problemas_mazo.shift();
+    probState.currentCard = card;
+    
+    btnElegir.textContent = `extrayendo carta ${i + 1}/${numCartasExtraer}...`;
+    renderProb();
+    
+    // Esperar 100ms para mostrar la carta
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Agregar a las cartas extraídas (se apilan a la izquierda)
+    probState.drawn.push(card);
+    probState.currentCard = null;
+    renderProb();
+    
+    // Pequeña pausa antes de la siguiente carta
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  
+  // La última carta extraída (en posición carta_azar) es la elegida
+  if(probState.drawn.length > 0){
+    probState.selectedCard = probState.drawn[probState.drawn.length - 1];
+    renderProb();
+  }
+  
+  probState.busy = false;
+  btnElegir.disabled = false;
+  btnElegir.textContent = originalText;
+}
+
+// Conectar botones
 $('#btnElegir').addEventListener('click', elegirProblema);
 $('#btnReiniciarProb').addEventListener('click', buildProbDeck);
 
-buildProbDeck();
+// Inicializar cargando los problemas desde el JSON
+cargarProblemas();

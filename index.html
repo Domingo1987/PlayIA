@@ -58,7 +58,7 @@
       </div>
     </section>
 
-    <!-- mazo de problemas: simulación de robar cartas en 4s -->
+    <!-- mazo de problemas: simulación de robar cartas -->
     <section id="mazo-prob" class="section">
       <div class="container">
         <div class="section-head">
@@ -68,19 +68,31 @@
             <button id="btnReiniciarProb" class="btn" type="button">reiniciar mazo</button>
           </div>
         </div>
+        
+        <div class="simulation-info">
+          <p>la simulación extrae cartas una por una (cada 100ms) hasta llegar a una posición aleatoria. esa carta es el problema elegido.</p>
+        </div>
 
         <div class="prob-board">
-          <div class="pile pile-left" aria-label="mazo restante">
-            <h3>mazo</h3>
-            <div id="prob-deck" class="stack"></div>
-            <!-- contenedor para la carta elegida que debe aparecer a la izquierda -->
-            <div id="prob-chosen" class="chosen" aria-live="polite"></div>
-          </div>
-          <div class="pile pile-right" aria-label="cartas robadas">
-            <h3>robadas</h3>
+          <div class="pile pile-left" aria-label="cartas extraídas">
+            <h3>cartas extraídas (<span id="drawn-count">0</span>)</h3>
             <div id="prob-drawn" class="drawn"></div>
+          </div>
+          
+          <div class="pile pile-center" aria-label="carta actual">
+            <h3>extrayendo carta...</h3>
             <div id="prob-current" class="current" aria-live="polite"></div>
           </div>
+          
+          <div class="pile pile-right" aria-label="mazo restante">
+            <h3>mazo (<span id="deck-count">0</span> cartas)</h3>
+            <div id="prob-deck" class="stack"></div>
+          </div>
+        </div>
+        
+        <div class="chosen-container">
+          <h3>problema seleccionado:</h3>
+          <div id="prob-chosen" class="chosen" aria-live="polite"></div>
         </div>
       </div>
     </section>
@@ -88,7 +100,20 @@
 
   <footer class="site-footer">
     <div class="container">
-      <small>© <span id="y"></span> playia</small>
+      <div class="footer-content">
+        <div class="footer-main">
+          <p class="footer-brand">PlayIA</p>
+          <p class="footer-copyright">© 2025 PlayIA. Todos los derechos reservados.</p>
+        </div>
+        <div class="footer-info">
+          <p class="footer-institution">CeRP del Suroeste</p>
+          <p class="footer-program">Profesorado de Informática</p>
+          <p class="footer-purpose">Proyecto de uso educativo</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <small>Desarrollado con fines educativos y de investigación</small>
+      </div>
     </div>
   </footer>
 
