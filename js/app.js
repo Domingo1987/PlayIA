@@ -5,41 +5,20 @@ const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
 /* -------- scroll infinito (sección ¿qué es?) -------- */
 const stream = $('#infinite-stream');
 const sentinel = $('#stream-sentinel');
-let streamBatch = 0;
 
-function addStreamBatch(){
-  const n = 6; // 6 tarjetas por batch
-  for(let i=0;i<n;i++){
-    const card = document.createElement('article');
-    card.className = 'card-note';
-    card.innerHTML = `<h3>idea #${streamBatch*n + (i+1)}</h3>
-      <p>ejemplo de uso del mazo para una dinámica rápida en clase.</p>`;
-    stream.appendChild(card);
-  }
-  streamBatch++;
-}
-
-const io = new IntersectionObserver((entries)=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){ addStreamBatch(); }
-  })
-}, {rootMargin:'1000px'});
-
-io.observe(sentinel);
-addStreamBatch(); // primer lote
 
 /* -------- mazo de IA (flip al hover) -------- */
 const IA_CARDS = [
-  { id:'gpt',  nombre:'gpt',  img:'tapa-gpt.png',    back:'fondo-gpt.png',   desc:'modelo conversacional y de razonamiento.' },
-  { id:'gem',  nombre:'gemini',img:'tapa-gemini.png',back:'fondo-gemini.png',desc:'multimodal rápido para prototipos.' },
-  { id:'cla',  nombre:'claude',img:'tapa-claude.png',back:'fondo-claude.png',desc:'redacción y análisis extensos.' },
-  { id:'mid',  nombre:'midjourney',img:'tapa-mid.png',back:'fondo-mid.png',desc:'generación de imágenes.' },
-  { id:'flux', nombre:'flux', img:'tapa-flux.png',   back:'fondo-flux.png',  desc:'imagen y estilo creativo.' },
-  { id:'sdxl', nombre:'stable diffusion',img:'tapa-sdxl.png',back:'fondo-sdxl.png',desc:'imagen local/auto-hospedada.' },
-  { id:'suno', nombre:'suno', img:'tapa-suno.png',   back:'fondo-suno.png',  desc:'música con ia.' },
-  { id:'whis', nombre:'whisper',img:'tapa-whisper.png',back:'fondo-whisper.png',desc:'transcripción de audio.' },
-  { id:'ras',  nombre:'rasa', img:'tapa-rasa.png',   back:'fondo-rasa.png',  desc:'chatbots on‑premise.' },
-  { id:'hf',   nombre:'hugging face',img:'tapa-hf.png',back:'fondo-hf.png',  desc:'ecosistema de modelos.' },
+  { id:'gpt',  nombre:'gpt',  img:'tapa-prob.png',    back:'tapa-prob.png',   desc:'modelo conversacional y de razonamiento.' },
+  { id:'gem',  nombre:'gemini',img:'tapa-prob.png',back:'tapa-prob.png',desc:'multimodal rápido para prototipos.' },
+  { id:'cla',  nombre:'claude',img:'tapa-prob.png',back:'tapa-prob.png',desc:'redacción y análisis extensos.' },
+  { id:'mid',  nombre:'midjourney',img:'tapa-prob.png',back:'tapa-prob.png',desc:'generación de imágenes.' },
+  { id:'flux', nombre:'flux', img:'tapa-prob.png',   back:'tapa-prob.png',  desc:'imagen y estilo creativo.' },
+  { id:'sdxl', nombre:'stable diffusion',img:'tapa-prob.png',back:'tapa-prob.png',desc:'imagen local/auto-hospedada.' },
+  { id:'suno', nombre:'suno', img:'tapa-prob.png',   back:'tapa-prob.png',  desc:'música con ia.' },
+  { id:'whis', nombre:'whisper',img:'tapa-prob.png',back:'tapa-prob.png',desc:'transcripción de audio.' },
+  { id:'ras',  nombre:'rasa', img:'tapa-prob.png',   back:'tapa-prob.png',  desc:'chatbots on‑premise.' },
+  { id:'hf',   nombre:'hugging face',img:'tapa-prob.png',back:'tapa-prob.png',  desc:'ecosistema de modelos.' },
 ];
 
 function dataImg(path, label='carta'){
