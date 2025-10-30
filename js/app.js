@@ -9,7 +9,7 @@ const sentinel = $('#stream-sentinel');
 
 /* -------- mazo de IA (flip al hover) -------- */
 const IA_CARDS = [
-  { id:'gpt',  nombre:'gpt',  img:'prob-chatGPT.png',    back:'tapa-prob.png',   desc:'modelo conversacional y de razonamiento.' },
+  { id:'gpt',  nombre:'gpt',  img:'prob-chatgpt.png',    back:'tapa-prob.png',   desc:'modelo conversacional y de razonamiento.' },
   { id:'clau',  nombre:'claude',img:'prob-claude.png',back:'tapa-prob.png',desc:'multimodal rápido para prototipos.' },
   { id:'flow',  nombre:'flow',img:'prob-flow.png',back:'tapa-prob.png',desc:'redacción y análisis extensos.' },
   { id:'gam',  nombre:'gamma',img:'prob-gamma.png',back:'tapa-prob.png',desc:'generación de imágenes.' },
