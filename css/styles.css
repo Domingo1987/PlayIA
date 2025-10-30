@@ -242,6 +242,19 @@ img{max-width:100%;display:block}
     gap:24px
   }
 }
+.footer-auspicio{
+  text-align:center;
+  margin-bottom:16px;
+  font-size:14px;
+  background-color: #fff;
+}
+
+
+
+
+
+
+
 .footer-main p,
 .footer-info p{
   margin:4px 0
@@ -283,3 +296,91 @@ img{max-width:100%;display:block}
   color:var(--muted);
   font-size:12px
 }
+
+
+/* Marquee / continuous logos (adaptado al proyecto)
+   This replaces the generic snippet previously appended. It only targets
+   .scroll (legacy) and the project's slider elements (.slider-viewport, .slider-track).
+   No HTML files are modified. Images keep their transparency (no background) and
+   the viewport has a 70% fade at both edges toward the interior. */
+
+.scroll,
+.slider-viewport {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  padding: 8px 0;
+  background: transparent; /* preserve PNG transparency */
+}
+
+/* Inner track: for legacy .scroll the inner element is expected to be a div; for the slider use .slider-track */
+.scroll > div,
+.slider-viewport > .slider-track {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* Animation: moves content left continuously. Duration can be tuned. */
+.scroll > div { animation: marquee var(--marq-duration, 30s) linear infinite; }
+.slider-viewport > .slider-track { animation: marquee var(--marq-duration, 24s) linear infinite; }
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  /* --marq-shift is set by JS to an exact negative pixel value (e.g. -1200px).
+     Fallback to -50% when the variable is not available. */
+  100% { transform: translateX(var(--marq-shift, -50%)); }
+}
+
+/* Pause on hover/focus to allow users to inspect logos */
+.scroll:hover > div,
+.slider-viewport:hover > .slider-track,
+.slider-viewport:focus > .slider-track {
+  animation-play-state: paused;
+}
+
+/* Images in these carousels: preserve transparency, do not apply grayscale */
+.scroll img,
+.slider-viewport img,
+.slider-track img {
+  height: 56px; /* consistent height */
+  width: auto;
+  display: block;
+  filter: none;
+  background: transparent;
+}
+
+/* If the track does not contain duplicated content to loop seamlessly,
+   the animation still provides movement; duplicating nodes for infinite
+   seamless loops requires HTML changes, which you requested to avoid. */
+
+/* Fade overlays at the edges: 70% opacity -> transparent toward interior.
+   We use pseudo-elements so the images underneath keep their transparency. */
+.scroll::before, .slider-viewport::before,
+.scroll::after, .slider-viewport::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 18%;
+  pointer-events: none;
+  z-index: 12;
+}
+.scroll::before, .slider-viewport::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.0) 60%);
+}
+.scroll::after, .slider-viewport::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.0) 60%);
+}
+
+/* Responsive tweak */
+@media (max-width: 600px) {
+  .scroll img, .slider-viewport img, .slider-track img { height: 42px; }
+  .scroll::before, .slider-viewport::before, .scroll::after, .slider-viewport::after { width: 22%; }
+}
+
+/* End of marquee/slider CSS adaptation */

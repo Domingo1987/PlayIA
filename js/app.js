@@ -9,16 +9,18 @@ const sentinel = $('#stream-sentinel');
 
 /* -------- mazo de IA (flip al hover) -------- */
 const IA_CARDS = [
-  { id:'gpt',  nombre:'gpt',  img:'tapa-prob.png',    back:'tapa-prob.png',   desc:'modelo conversacional y de razonamiento.' },
-  { id:'gem',  nombre:'gemini',img:'tapa-prob.png',back:'tapa-prob.png',desc:'multimodal rápido para prototipos.' },
-  { id:'cla',  nombre:'claude',img:'tapa-prob.png',back:'tapa-prob.png',desc:'redacción y análisis extensos.' },
-  { id:'mid',  nombre:'midjourney',img:'tapa-prob.png',back:'tapa-prob.png',desc:'generación de imágenes.' },
-  { id:'flux', nombre:'flux', img:'tapa-prob.png',   back:'tapa-prob.png',  desc:'imagen y estilo creativo.' },
-  { id:'sdxl', nombre:'stable diffusion',img:'tapa-prob.png',back:'tapa-prob.png',desc:'imagen local/auto-hospedada.' },
-  { id:'suno', nombre:'suno', img:'tapa-prob.png',   back:'tapa-prob.png',  desc:'música con ia.' },
-  { id:'whis', nombre:'whisper',img:'tapa-prob.png',back:'tapa-prob.png',desc:'transcripción de audio.' },
-  { id:'ras',  nombre:'rasa', img:'tapa-prob.png',   back:'tapa-prob.png',  desc:'chatbots on‑premise.' },
-  { id:'hf',   nombre:'hugging face',img:'tapa-prob.png',back:'tapa-prob.png',  desc:'ecosistema de modelos.' },
+  { id:'gpt',  nombre:'gpt',  img:'prob-chatGPT.png',    back:'tapa-prob.png',   desc:'modelo conversacional y de razonamiento.' },
+  { id:'clau',  nombre:'claude',img:'prob-claude.png',back:'tapa-prob.png',desc:'multimodal rápido para prototipos.' },
+  { id:'flow',  nombre:'flow',img:'prob-flow.png',back:'tapa-prob.png',desc:'redacción y análisis extensos.' },
+  { id:'gam',  nombre:'gamma',img:'prob-gamma.png',back:'tapa-prob.png',desc:'generación de imágenes.' },
+  { id:'hey', nombre:'heygen', img:'prob-heygen.png',   back:'tapa-prob.png',  desc:'imagen y estilo creativo.' },
+  { id:'nan', nombre:'nanobanana',img:'prob-nanobanana.png',back:'tapa-prob.png',desc:'imagen local/auto-hospedada.' },
+  { id:'note', nombre:'notebookLM', img:'prob-notebookLM.png',   back:'tapa-prob.png',  desc:'música con ia.' },
+  { id:'perp', nombre:'perplexity',img:'prob-perplexity.png',back:'tapa-prob.png',desc:'transcripción de audio.' },
+  { id:'pre',  nombre:'presenti', img:'prob-presenti.png',   back:'tapa-prob.png',  desc:'chatbots on‑premise.' },
+  { id:'ren',   nombre:'renderforest',img:'prob-renderforest.png',back:'tapa-prob.png',  desc:'ecosistema de modelos.' },
+    { id:'sun',   nombre:'suno',img:'prob-suno.png',back:'tapa-prob.png',  desc:'ecosistema de modelos.' },
+      { id:'udi',   nombre:'udio',img:'prob-udio.png',back:'tapa-prob.png',  desc:'ecosistema de modelos.' },
 ];
 
 function dataImg(path, label='carta'){
@@ -283,3 +285,77 @@ $('#btnReiniciarProb').addEventListener('click', buildProbDeck);
 
 // Inicializar cargando los problemas desde el JSON
 cargarProblemas();
+
+/* -------- marquee de auspicios (.scroll) -------- */
+function initAuspicioMarquee(){
+  const scroll = document.querySelector('.scroll');
+  if(!scroll) return; // no demo block present
+
+  // Lista de imágenes en assets/aus — mantenida aquí porque el navegador no puede leer directorios
+  const IMAGES = [
+    'aus-deepseek.png',
+    'aus-elevenlabs.png',
+    'aus-grok.png',
+    'aus-huggingFace.png',
+    'aus-llama3 .png',
+    'aus-lovable.png',
+    'aus-midjourney6.png',
+    'aus-n8n.png'
+  ];
+
+  // Helper para crear un track (div) con las imágenes
+  function makeTrack(){
+    const track = document.createElement('div');
+    IMAGES.forEach(name => {
+      const img = document.createElement('img');
+      // encodeURIComponent para nombres con espacios u otros caracteres
+      img.src = './assets/aus/' + encodeURIComponent(name);
+      img.alt = name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+      img.loading = 'lazy';
+      // Keep transparency: no background/styling here; CSS handles sizing
+      track.appendChild(img);
+    });
+    return track;
+  }
+
+  // Clear existing content and build ONE track which contains the images duplicated
+  // (this makes a seamless loop when CSS translates the inner track by -50%)
+  scroll.innerHTML = '';
+  const track = makeTrack();
+  // duplicate images inside the same track for smooth looping
+  const clones = Array.from(track.children).map(n => n.cloneNode(true));
+  clones.forEach(c => track.appendChild(c));
+  // Ensure track has no animation running until images load
+  track.style.animationPlayState = 'paused';
+  scroll.appendChild(track);
+
+  // Wait until all images (including clones) are loaded before measuring and starting
+  const imgs = Array.from(track.querySelectorAll('img'));
+  const loadPromises = imgs.map(img => new Promise(resolve => {
+    if(img.complete && img.naturalWidth !== 0) return resolve();
+    img.addEventListener('load', resolve);
+    img.addEventListener('error', resolve);
+  }));
+
+  Promise.all(loadPromises).then(()=>{
+    try{
+      // Measure width of one sequence (half the track)
+      const seqWidth = track.scrollWidth / 2;
+      const speed = 500; // px per second (tweak to taste)
+  const duration = Math.max(8, Math.round(seqWidth / speed));
+  // Apply duration and exact pixel shift for a seamless loop
+  track.style.setProperty('--marq-duration', duration + 's');
+  track.style.setProperty('--marq-shift', `-${Math.round(seqWidth)}px`);
+  // Force reflow to ensure CSS picks up the new duration/shift before running
+  // eslint-disable-next-line no-unused-expressions
+  track.offsetWidth;
+  track.style.animationPlayState = 'running';
+    }catch(e){
+      // If measurement fails, just run with CSS defaults
+      track.style.animationPlayState = 'running';
+    }
+  }).catch(()=>{ track.style.animationPlayState = 'running'; });
+}
+
+// Inicializar marquee si existe
+initAuspicioMarquee();
