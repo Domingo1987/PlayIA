@@ -297,6 +297,25 @@ img{max-width:100%;display:block}
   font-size:12px
 }
 
+/* Botón de audio (esquina superior derecha) */
+.audio-toggle{
+  position:fixed;
+  top:12px;
+  right:16px;
+  z-index:9999;
+  background:rgba(255,255,255,0.95);
+  border:1px solid #e1e6ef;
+  color:#0b132b;
+  padding:6px 10px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:16px;
+  line-height:1;
+  box-shadow:0 6px 18px rgba(11,19,43,0.25);
+}
+.audio-toggle[aria-pressed="true"]{ background:linear-gradient(180deg,#f0f6ff,#e6eefb); }
+.audio-toggle:focus{ outline:3px solid rgba(91,192,190,0.25); }
+
 
 /* Marquee / continuous logos (adaptado al proyecto)
    This replaces the generic snippet previously appended. It only targets

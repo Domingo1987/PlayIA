@@ -359,3 +359,53 @@ function initAuspicioMarquee(){
 
 // Inicializar marquee si existe
 initAuspicioMarquee();
+
+/* -------- background audio control -------- */
+(function initBackgroundAudio(){
+  const audio = document.getElementById('bg-audio');
+  const btn = document.getElementById('btn-audio-toggle');
+  if(!audio || !btn) return;
+
+  // Read saved preference
+  const saved = window.localStorage.getItem('playia-muted');
+  const isMuted = saved === 'true';
+  audio.muted = isMuted;
+  btn.setAttribute('aria-pressed', String(isMuted));
+  btn.innerText = isMuted ? '🔇' : '🔊';
+
+  // Try to play (may be blocked); if blocked, keep muted and update UI
+  function tryPlay(){
+    // If muted, don't force unmuted autoplay
+    if(audio.muted) return;
+    const p = audio.play();
+    if(p && p.then) p.catch(()=>{
+      // autoplay blocked: mute and reflect state
+      audio.muted = true;
+      btn.setAttribute('aria-pressed', 'true');
+      btn.innerText = '🔇';
+      window.localStorage.setItem('playia-muted','true');
+    });
+  }
+
+  // Start playing (if allowed)
+  tryPlay();
+
+  // Toggle handler: user gesture will allow playback unmuted
+  btn.addEventListener('click', ()=>{
+    const willMute = !(audio.muted);
+    audio.muted = willMute;
+    btn.setAttribute('aria-pressed', String(willMute));
+    btn.innerText = willMute ? '🔇' : '🔊';
+    window.localStorage.setItem('playia-muted', String(willMute));
+    if(!willMute){
+      // user wants sound: try to play (unmuted) — this is a user gesture so it should succeed
+      audio.play().catch(()=>{
+        // if still fails, keep muted and update
+        audio.muted = true;
+        btn.setAttribute('aria-pressed', 'true');
+        btn.innerText = '🔇';
+        window.localStorage.setItem('playia-muted','true');
+      });
+    }
+  });
+})();
