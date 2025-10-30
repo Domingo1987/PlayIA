@@ -9,18 +9,18 @@ const sentinel = $('#stream-sentinel');
 
 /* -------- mazo de IA (flip al hover) -------- */
 const IA_CARDS = [
-  { id:'gpt',  nombre:'gpt',  img:'prob-chatgpt.png',    back:'tapa-prob.png',   desc:'modelo conversacional y de razonamiento.' },
-  { id:'clau',  nombre:'claude',img:'prob-claude.png',back:'tapa-prob.png',desc:'multimodal rápido para prototipos.' },
-  { id:'flow',  nombre:'flow',img:'prob-flow.png',back:'tapa-prob.png',desc:'redacción y análisis extensos.' },
-  { id:'gam',  nombre:'gamma',img:'prob-gamma.png',back:'tapa-prob.png',desc:'generación de imágenes.' },
-  { id:'hey', nombre:'heygen', img:'prob-heygen.png',   back:'tapa-prob.png',  desc:'imagen y estilo creativo.' },
-  { id:'nan', nombre:'nanobanana',img:'prob-nanobanana.png',back:'tapa-prob.png',desc:'imagen local/auto-hospedada.' },
-  { id:'note', nombre:'notebookLM', img:'prob-notebookLM.png',   back:'tapa-prob.png',  desc:'música con ia.' },
-  { id:'perp', nombre:'perplexity',img:'prob-perplexity.png',back:'tapa-prob.png',desc:'transcripción de audio.' },
-  { id:'pre',  nombre:'presenti', img:'prob-presenti.png',   back:'tapa-prob.png',  desc:'chatbots on‑premise.' },
-  { id:'ren',   nombre:'renderforest',img:'prob-renderforest.png',back:'tapa-prob.png',  desc:'ecosistema de modelos.' },
-    { id:'sun',   nombre:'suno',img:'prob-suno.png',back:'tapa-prob.png',  desc:'ecosistema de modelos.' },
-      { id:'udi',   nombre:'udio',img:'prob-udio.png',back:'tapa-prob.png',  desc:'ecosistema de modelos.' },
+  { id:'gpt',  nombre:'gpt',  img:'prob-chatgpt.png',    back:'back-ChatGPT.png',   desc:'modelo conversacional y de razonamiento.' },
+  { id:'clau',  nombre:'claude',img:'prob-claude.png',back:'back-Claude',desc:'multimodal rápido para prototipos.' },
+  { id:'flow',  nombre:'flow',img:'prob-flow.png',back:'back-Flow.png',desc:'redacción y análisis extensos.' },
+  { id:'gam',  nombre:'gamma',img:'prob-gamma.png',back:'back-Gamma.png',desc:'generación de imágenes.' },
+  { id:'hey', nombre:'heygen', img:'prob-heygen.png',   back:'back-Heygen.png',  desc:'imagen y estilo creativo.' },
+  { id:'nan', nombre:'nanobanana',img:'prob-nanobanana.png',back:'back-NanoBanana.png',desc:'imagen local/auto-hospedada.' },
+  { id:'note', nombre:'notebookLM', img:'prob-notebookLM.png',   back:'back-NotebookLM.png',  desc:'música con ia.' },
+  { id:'perp', nombre:'perplexity',img:'prob-perplexity.png',back:'back-Perplexity.png',desc:'transcripción de audio.' },
+  { id:'pre',  nombre:'presenti', img:'prob-presenti.png',   back:'back-Presenti.ai.png',  desc:'chatbots on‑premise.' },
+  { id:'ren',   nombre:'renderforest',img:'prob-renderforest.png',back:'back-Renderforest.png',  desc:'ecosistema de modelos.' },
+    { id:'sun',   nombre:'suno',img:'prob-suno.png',back:'back-Suno.png',  desc:'ecosistema de modelos.' },
+      { id:'udi',   nombre:'udio',img:'prob-udio.png',back:'back-Udio.png',  desc:'ecosistema de modelos.' },
 ];
 
 function dataImg(path, label='carta'){
